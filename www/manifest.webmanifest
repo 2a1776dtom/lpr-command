@@ -1,0 +1,8 @@
+{
+  "name": "Command",
+  "short_name": "Command",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1c1e21",
+  "theme_color": "#1c1e21"
+}

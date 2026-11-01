@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://command.local/home_feed.schema.json",
+  "title": "Command home feed",
+  "description": "JSON the home assistant writes today. Command imports this file with no Appwrite account. Later the same fields can be written to the Appwrite collections in SETUP.md. Unknown fields are kept out of the way and do not fail the import.",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "source": { "type": "string" },
+    "updated": {
+      "type": "string",
+      "description": "ISO date (YYYY-MM-DD) or datetime for this snapshot."
+    },
+    "meal_prep": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "rules": {
+          "description": "A list of rule lines, or one string with line breaks.",
+          "oneOf": [
+            { "type": "array", "items": { "type": "string" } },
+            { "type": "string" }
+          ]
+        },
+        "next": { "type": "string" },
+        "plan": {
+          "description": "Current week. Wins over any last_plan_* archive.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/meal" }
+        },
+        "meals": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/meal" }
+        },
+        "week": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/meal" }
+        },
+        "last_plan": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/meal" }
+        }
+      },
+      "patternProperties": {
+        "^last_plan_\\d{4}-\\d{2}-\\d{2}$": {
+          "description": "Archive of an older plan. Used when plan, meals, and week are absent. The latest date wins.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/meal" }
+        }
+      }
+    },
+    "projects": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/project" }
+    },
+    "fun_money": { "$ref": "#/$defs/funMoney" }
+  },
+  "$defs": {
+    "meal": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "meal": { "type": "string" },
+        "name": { "type": "string", "description": "Used when meal is missing." },
+        "title": { "type": "string" },
+        "servings": {
+          "oneOf": [{ "type": "number" }, { "type": "string" }]
+        },
+        "ingredients": { "type": "string" },
+        "checked": { "type": "boolean", "description": "Shopping checkbox. Command keeps this when a new feed arrives for the same meal name." }
+      }
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["title"],
+      "properties": {
+        "title": { "type": "string" },
+        "name": { "type": "string", "description": "Used when title is missing." },
+        "status": { "type": "string" },
+        "files": { "type": "string", "description": "File path or folder. file and path are also accepted." },
+        "file": { "type": "string" },
+        "path": { "type": "string" },
+        "next": { "type": "string" },
+        "next_step": { "type": "string" },
+        "choice": {
+          "type": "boolean",
+          "description": "Set true to force a Home decision. Set false to keep it off the decision list even if the status says waiting."
+        }
+      }
+    },
+    "funMoney": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "routine": { "type": "string" },
+        "rules": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "array", "items": { "type": "string" } }
+          ]
+        },
+        "tsla_shares": {
+          "oneOf": [{ "type": "number" }, { "type": "string" }]
+        },
+        "tsla": {
+          "description": "Alias of tsla_shares.",
+          "oneOf": [{ "type": "number" }, { "type": "string" }]
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "source": "Home bot",
+      "updated": "2026-10-31",
+      "meal_prep": {
+        "rules": ["Names first, details after you approve"],
+        "last_plan_2026-10-16": [
+          { "meal": "Smoked shredded chuck roast", "servings": 6 }
+        ],
+        "next": "Weekly plan for Sun Nov 1 prep, names first"
+      },
+      "projects": [
+        {
+          "title": "CNC Adirondack bar chair",
+          "status": "Concept done",
+          "files": "/workspace/shop_stool/adirondack/",
+          "next": "SVG export for Fusion 360 when Brandon says go"
+        }
+      ],
+      "fun_money": {
+        "routine": "Weekday 4:51am PT call to CoS",
+        "rules": "Your saved rules text",
+        "tsla_shares": 8.143769
+      }
+    }
+  ]
+}

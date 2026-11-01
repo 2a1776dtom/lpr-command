@@ -1,0 +1,11 @@
+*.ipa
+*.key
+*.mobileprovision
+*.p12
+*.p8
+*.pem
+.DS_Store
+build/
+ios/App/App/public/
+ios/App/build/
+node_modules/

@@ -1,0 +1,24 @@
+{
+  "name": "lpr-command",
+  "version": "2.9.0",
+  "description": "Capacitor iOS app: Command",
+  "scripts": {
+    "build": "node scripts/check-web.js",
+    "sync": "npx cap sync ios"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/filesystem": "^8.1.5",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/ios": "^8.5.3",
+    "@capacitor/screen-orientation": "^8.0.2",
+    "@capacitor/share": "^8.0.3",
+    "armexam-ondevice-speech": "file:plugins/armexam-ondevice-speech"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.3",
+    "@mediapipe/tasks-vision": "^1.1.0"
+  }
+}

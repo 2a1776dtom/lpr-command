@@ -1,0 +1,10 @@
+{
+  "name": "armexam-ondevice-speech",
+  "version": "1.0.0",
+  "description": "ARM Exam local Capacitor plugin: on-device speech to text (SFSpeechRecognizer with requiresOnDeviceRecognition). No server.",
+  "license": "UNLICENSED",
+  "private": true,
+  "files": ["ios/Sources", "Package.swift"],
+  "capacitor": { "ios": { "src": "ios" } },
+  "peerDependencies": { "@capacitor/core": ">=8.0.0" }
+}

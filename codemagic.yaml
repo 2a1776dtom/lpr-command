@@ -1,0 +1,51 @@
+# Codemagic iOS build for Command (Capacitor 8, Swift Package Manager, no CocoaPods).
+# Reuses Loadshare's Codemagic setup: App Store Connect API key integration "loadshare_asc"
+# and env group "code_signing" (secret CERTIFICATE_PRIVATE_KEY).
+# Before first run: create the app record in App Store Connect (bundle id com.brandonfromm.command)
+# (done: APP_STORE_APPLE_ID below is set to its Apple ID) (App Store Connect > Apps > Command > App Information).
+workflows:
+  ios-testflight:
+    name: Command iOS TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      app_store_connect: loadshare_asc
+    environment:
+      groups:
+        - code_signing   # holds CERTIFICATE_PRIVATE_KEY (secret)
+      vars:
+        APP_STORE_APPLE_ID: "6829373498"  # Command app record Apple ID
+        XCODE_PROJECT: "ios/App/App.xcodeproj"
+        XCODE_SCHEME: "App"
+      node: 22
+      xcode: latest
+    # No triggering block: builds run only when you click Start new build.
+    scripts:
+      - name: Install npm deps
+        script: npm ci
+      - name: Copy web assets into native project
+        script: npx cap sync ios
+      - name: Keychain
+        script: keychain initialize
+      - name: Fetch or create cert + App Store profile (automatic signing)
+        script: |
+          app-store-connect fetch-signing-files "com.brandonfromm.command" \
+            --type IOS_APP_STORE --create
+      - name: Add cert to keychain
+        script: keychain add-certificates
+      - name: Apply signing to Xcode project
+        script: |
+          xcode-project use-profiles --custom-export-options='{"testFlightInternalTestingOnly": true}'
+      - name: Bump build number
+        script: |
+          LATEST=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID" || echo 0)
+          cd ios/App && agvtool new-version -all $((LATEST + 1))
+      - name: Build ipa
+        script: xcode-project build-ipa --project "$XCODE_PROJECT" --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: false   # internal testers get it without beta review
